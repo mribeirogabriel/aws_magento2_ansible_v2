@@ -1,0 +1,49 @@
+---
+- name: Cria o grupo de segurança para o Banco e permite acesso para as subnets Publicas
+  ec2_group:
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   state: present
+   region: "{{ aws_region }}"
+   vpc_id: "{{ vpc_id }}"
+   name: "magento2_db"
+   description: "grupo de seguranca da instancia banco magento"
+   rules:
+     - proto: tcp
+       from_port: 3306
+       to_port: 3306
+       cidr_ip: "{{ public_subnet_1_cidr }}"
+     - proto: tcp
+       from_port: 3306
+       to_port: 3306
+       cidr_ip: "{{ public_subnet_2_cidr }}" 
+  register: app_db_sg
+
+- name: Cria a grupo de subnets para o banco
+  rds_subnet_group:
+    state: present
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    name: "{{ subnet_private_db }}"
+    description: "PRIVATE DB"
+    subnets:
+      - "{{ public_subnet01_id }}"
+      - "{{ public_subnet02_id }}"
+
+- name: Cria a base de dados para o Magento2 na subnet PRIVADA01
+  rds_instance:
+    region: "{{ aws_region }}"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    db_subnet_group_name: "{{ subnet_private_db }}"
+    vpc_security_group_ids: "{{ app_db_sg.group_id }}"
+    db_instance_identifier: magento2-database
+    db_name: "magento"
+    engine: mysql
+    engine_version: "5.7.26"
+    instance_type: db.t2.micro
+    allocated_storage: 20
+    port: 3306
+    username: "admin"
+    password: "password"

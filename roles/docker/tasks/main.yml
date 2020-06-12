@@ -1,0 +1,42 @@
+---
+- name: Atualiza repositorios
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+    upgrade: dist
+    force_apt_get: yes
+
+- name: Instala Python3 e Pip3
+  apt:
+    pkg:
+      - python
+      - python-pip
+      - python-dev
+      - python3
+      - python3-pip
+      - python3-dev
+
+- name: Instala Git e Curl
+  apt:
+    pkg:
+      - git
+      - curl
+
+- name: Instala docker-py
+  pip:
+    name: docker-py
+    state: present
+
+- name: Download Docker CE
+  get_url:
+    url: https://get.docker.com
+    dest: /tmp/get-docker.sh
+    mode: '0755'
+
+- name: Instala Docker CE
+  shell: /tmp/get-docker.sh
+
+- name: Remove arquivos temporarios do Docker
+  file:
+    path: /tmp/get-docker.sh
+    state: absent

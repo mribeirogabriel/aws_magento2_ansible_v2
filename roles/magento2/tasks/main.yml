@@ -1,0 +1,8 @@
+---
+- name: Create Container Magento2 Web Server
+  docker_container:
+    name: magento2_web
+    image: alexcheng/magento2
+    state: started
+    ports:
+    - "80:80"

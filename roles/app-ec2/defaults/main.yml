@@ -1,0 +1,6 @@
+---
+image: "ami-0f56279347d2fa43e"
+instance_type: "t2.micro"
+count: "1"
+volume_size: "8"
+subnet: "{{ public_subnet_id }}"

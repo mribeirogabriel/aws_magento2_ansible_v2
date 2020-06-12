@@ -1,0 +1,24 @@
+---
+- hosts: localhost
+  connection: local
+  roles:
+    - { role: keypair, tags: [ 'keypairs', 'infra' ] }
+    - { role: vpc, tags: [ 'vpc', 'infra' , 'always' ] }
+    - { role: rds, tags: [ 'rds', 'infra' ] }
+    - { role: app-ec2, tags: [ 'ec2', 'infra' ] }
+
+- hosts: localhost
+  connection: local
+  gather_facts: False
+  tasks:
+    - name: Limpa o cache do inventario Dinamico
+      meta: refresh_inventory
+
+- hosts: tag_Name_magento2
+  become: yes
+  remote_user: ubuntu
+  gather_facts: False
+
+  roles:
+    - { role: docker, tags: ['docker'] }
+    - { role: magento2, tags: [ 'app', 'magento2' ] }
